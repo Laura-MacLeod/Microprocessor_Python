@@ -17,22 +17,6 @@ import matplotlib.pyplot as plt
 
 %matplotlib inline
 
-# angle1 = np.arange(0, 2*np.pi, 2.8125*(np.pi/180))
-# angle2 = np.arange(0, 2*np.pi, (np.pi/14))
-
-# print(len(angle))
-
-# dc = (np.sin(angle2) + 1)/2
-
-
-# plt.plot(angle2, dc*100)
-
-# plt.xlabel('Angle [rad]')
-# plt.ylabel('Duty Cycle [%]')
-# plt.grid()
-
-# print(list(duty*100))
-
 
 
 def Duty_Period(n_samples, sine_freq, clock_freq, prescaler):
@@ -40,10 +24,22 @@ def Duty_Period(n_samples, sine_freq, clock_freq, prescaler):
     clock_period = 1 / clock_freq
     sine_period = 1 / sine_freq
     
-    print(sine_period)
+    print('Sinusoid period: ', sine_period)
     
     period = (sine_period / n_samples)          # PWM period fixed by sine freq and sample number
-    print(period)                               # Amount of time at each duty cycle
+    print('PWM period: ', period)                               # Amount of time at each duty cycle
+    
+    instruction_time = 4 / (64e6)
+    
+    print('Instruction cycle time: ', instruction_time)
+    
+    delay = period/instruction_time
+    print('Number of instructions delay: ', delay)
+    print('')
+    
+    multiple_delay = delay * 5
+    print('To have 5 cycles per duty cycle, have number of delay instructions: ', multiple_delay)
+    print('')
 
     t = np.arange(0, sine_period, period)       # Time for each sine period
     
@@ -64,7 +60,7 @@ def Duty_Period(n_samples, sine_freq, clock_freq, prescaler):
         CCPCON_d.append(CCPCON)                                         # Decimal CCPCON
         CCPCON_b.append(format(round(CCPCON), 'b'))                     # Binary CCPCON
     
-    plt.plot(t, CCPCON_d, 'x-')
+    # plt.plot(t, CCPCON_d, 'x-')
 
 
 
@@ -75,8 +71,8 @@ def Duty_Period(n_samples, sine_freq, clock_freq, prescaler):
 
 
 
-PR2_b, CCPCON_b, PR2_d, CCPCON_d, t = Duty_Period(128, 523.25, 16e6, 1)
-
+PR2_b, CCPCON_b, PR2_d, CCPCON_d, t = Duty_Period(16, 623.25, 8e6, 1) # (Num, freq, clock, prescale)
+                                                
 
 
 
@@ -97,7 +93,7 @@ for i in range(len(CCPCON_b)):
         new = '0'
     else:
         new = CCPCON_b[i][:length-2]
-        new += '00'
+        # new += '00'                       # For checking
     
     back = int(new, 2)
     new_CCPCON.append(back)
@@ -109,9 +105,29 @@ for i in range(len(CCPCON_b)):
     # print('CALL     DELAY')
     # print('')
     
-print(new_CCPCON)
+# print(new_CCPCON)
 
-plt.plot(t, new_CCPCON)
+
+# ------- TRYING IN HEX --------
+
+hex_CCPCON = []
+
+for i in range(len(new_CCPCON)):
+    hexnum = hex(new_CCPCON[i])
+    hex_CCPCON.append(hexnum)
+    # print(hexnum)
+    
+    print('MOVLW   ' ,hexnum)
+    print('MOVWF    duty_cycle_upper')	
+    print('CALL     SIGNAL')
+    print('CALL     FSHARP_DELAY')
+    print('')
+
+print(hex(PR2_d))
+    
+# print(hex_CCPCON, sep =', ')
+
+plt.plot(t, new_CCPCON, 'x-')
 
 # print(PR2_d)
 # print(CCPCON_d)
