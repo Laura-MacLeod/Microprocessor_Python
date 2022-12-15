@@ -71,7 +71,7 @@ def Duty_Period(n_samples, sine_freq, clock_freq, prescaler):
 
 
 
-PR2_b, CCPCON_b, PR2_d, CCPCON_d, t = Duty_Period(16, 623.25, 8e6, 1) # (Num, freq, clock, prescale)
+PR2_b, CCPCON_b, PR2_d, CCPCON_d, t = Duty_Period(16, 600, 8e6, 1) # (Num, freq, clock, prescale)
                                                 
 
 
@@ -120,7 +120,7 @@ for i in range(len(new_CCPCON)):
     print('MOVLW   ' ,hexnum)
     print('MOVWF    duty_cycle_upper')	
     print('CALL     SIGNAL')
-    print('CALL     FSHARP_DELAY')
+    print('CALL     G_DELAY')
     print('')
 
 print(hex(PR2_d))
@@ -131,4 +131,18 @@ plt.plot(t, new_CCPCON, 'x-')
 
 # print(PR2_d)
 # print(CCPCON_d)
+
+
+
+'''
+Need a delay the length of the PWM period
+'''
+
+
+
+
+
+
+
+
 
