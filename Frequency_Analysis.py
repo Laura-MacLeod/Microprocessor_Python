@@ -247,7 +247,8 @@ stds.append(Gsharp_std)
 #%%
 
 
-%matplotlib inline
+%matplotlib auto
+plt.rcParams['font.size'] = 18
 
 
 stds = np.array([float(i) for i in stds])
@@ -255,11 +256,17 @@ means = np.array([float(i) for i in means])
 
 
 plt.figure(1)
-plt.plot(theory_freqs, means, '-o')
+plt.scatter(theory_freqs, means, color='black', s=70)
 plt.grid()
-plt.errorbar(theory_freqs, means, yerr=stds, capsize=3.8, capthick=2, linestyle='', elinewidth=3, color='red')
+plt.errorbar(theory_freqs, means, yerr=stds, capsize=5, capthick=2.5, linestyle='', elinewidth=4, color='red')
 plt.ylabel('Mean measured frequency [Hz]')
 plt.xlabel('Target frequency [Hz]')
+
+fit0 = np.polyfit(theory_freqs, means, 1)
+x0 = np.linspace(theory_freqs[0], theory_freqs[-1], 100)
+fit_vals0 = np.poly1d(fit0)
+plt.plot(x0, fit_vals0(x0), lw=1.5, color='orange')
+
 
 freq_DF = pd.DataFrame(means, theory_freqs)
 print(freq_DF)
@@ -269,21 +276,25 @@ print(freq_DF)
 
 
 plt.figure(2)
-diffs = (theory_freqs - means)**2
+# diffs = np.sqrt((theory_freqs - means)**2)
+diffs = np.abs((theory_freqs - means)*100/theory_freqs)
+# diffs_errors = np.sqrt(stds**2 * ((theory_freqs - means))**2)
+diffs_errors = (stds * ((theory_freqs - means)))
 plt.scatter(means, diffs, s=50, color='black')
 plt.grid()
+# plt.errorbar(means, diffs, yerr=diffs_errors, capsize=3.8, capthick=2, linestyle='', elinewidth=3, color='red')
 plt.xlabel('Mean measured frequency [Hz]')
-plt.ylabel('Difference squared from target [$Hz^2$]')
+plt.ylabel('Percentage error [%]')
 
 
 fit1 = np.polyfit(means, diffs, 1)
 x1 = np.linspace(means[0], means[-1], 100)
 fit_vals1 = np.poly1d(fit1)
-plt.plot(x1, fit_vals1(x1), lw=2.3, color='purple')
+plt.plot(x1, fit_vals1(x1), lw=2.5, color='#b26abf')
 
 
-
-
+print(min(diffs))
+print(max(diffs))
 
 
 
@@ -291,12 +302,12 @@ plt.figure(3)
 plt.scatter(means, precisions, s=40, color='black')
 plt.grid()
 plt.xlabel('Mean measured frequency [Hz]')
-plt.ylabel('Frequency increase with -0.125us delay [Hz]')
+plt.ylabel('Frequency precision [Hz]')     # Frequency increase with -0.125us delay [Hz]
 
 fit2 = np.polyfit(means[:10], precisions[:10], 1)
 x2 = np.linspace(means[0]-5, means[-3]+8, 100)
 fit_vals2 = np.poly1d(fit2)
-plt.plot(x2, fit_vals2(x2), color='forestgreen', lw=2)
+plt.plot(x2, fit_vals2(x2), color='#99cc33', lw=2)
 
 
 

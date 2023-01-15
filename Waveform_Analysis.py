@@ -26,10 +26,13 @@ def sine_odr(p, x):
     out = p[1] + p[2]*np.sin(p[3]*x + p[4])
     return out
 
+plt.rcParams['font.size'] = 18
 
 #%% -------- A -----------
 
-%matplotlib inline
+%matplotlib auto
+
+plt.rcParams['font.size'] = 18
 
 A = pd.read_csv("Data/A/WFM.CSV")
 
@@ -52,11 +55,14 @@ A_para, A_cov = sp.optimize.curve_fit(sine, A_time, A_sine, A_guess, maxfev=1000
 
 A_range = A_time[len(A_time)-1] - A_time[0]
 A_peaks = (A_para[2] / (2*np.pi)) * A_range
-A_ind = 10*(int(len(A_time)/A_peaks))
+A_ind = 5*(int(len(A_time)/A_peaks))
 
-plt.plot(A_time[:A_ind], A_sine[:A_ind])
+plt.plot(A_time[:A_ind], A_sine[:A_ind], color='#0e3b84', lw=3.5)
 
-plt.plot(A_time_range[:A_ind], sine(A_time_range[:A_ind], A_para[0], A_para[1], A_para[2], A_para[3]), lw=3)
+plt.plot(A_time_range[:A_ind], sine(A_time_range[:A_ind], A_para[0], A_para[1], A_para[2], A_para[3]), lw=3.5, color='#f7cf09')
+plt.grid()
+plt.xlabel("Time [s]")
+plt.ylabel("Voltage [V]")
 
 
 # ----- CHI SQUARED VALUE -----
@@ -626,6 +632,7 @@ print("Sum of percentage errors: ", E_sum)
 
 #%% -------- F -----------
 
+%matplotlib inline
 
 F = pd.read_csv("Data/F/WFM.CSV")
 
@@ -767,7 +774,7 @@ print("Sum of percentage errors: ", Fsharp_sum)
 
 #%% -------- G -----------
 
-%matplotlib auto
+%matplotlib inline
 
 G = pd.read_csv("Data/G/WFM.CSV")
 
@@ -838,7 +845,7 @@ print("Sum of percentage errors: ", G_sum)
 
 #%% -------- Gsharp -----------
 
-%matplotlib inline
+%matplotlib auto
 
 Gsharp = pd.read_csv("Data/G#/WFM.CSV")
 
@@ -861,11 +868,16 @@ Gsharp_para, Gsharp_cov = sp.optimize.curve_fit(sine, Gsharp_time, Gsharp_sine, 
 
 Gsharp_range = Gsharp_time[len(Gsharp_time)-1] - Gsharp_time[0]
 Gsharp_peaks = (Gsharp_para[2] / (2*np.pi)) * Gsharp_range
-Gsharp_ind = 10*(int(len(Gsharp_time)/Gsharp_peaks))
+Gsharp_ind = 5*(int(len(Gsharp_time)/Gsharp_peaks))
 
-plt.plot(Gsharp_time[:Gsharp_ind], Gsharp_sine[:Gsharp_ind])
+plt.figure("Gsharp")
+plt.plot(Gsharp_time[:Gsharp_ind], Gsharp_sine[:Gsharp_ind], color='#0e3b84', lw=3)
 
-plt.plot(Gsharp_time_range[:Gsharp_ind], sine(Gsharp_time_range[:Gsharp_ind], Gsharp_para[0], Gsharp_para[1], Gsharp_para[2], Gsharp_para[3]), lw=3)
+plt.plot(Gsharp_time_range[:Gsharp_ind], sine(Gsharp_time_range[:Gsharp_ind], Gsharp_para[0], Gsharp_para[1], Gsharp_para[2], Gsharp_para[3]), lw=3.5, color='#87c707')
+
+plt.grid()
+plt.xlabel("Time [s]")
+plt.ylabel("Voltage [V]")
 
 
 # ----- CHI SQUARED VALUE -----
@@ -915,9 +927,32 @@ print("Sum of percentage errors: ", Gsharp_sum)
 
 
 
+#%% ---------- FFT -----------
 
+%matplotlib inline
 
+A_ave = np.mean(A_sine)
+A_sine_norm = A_sine - A_ave
 
+h = A_time[3] - A_time[2]
+sample_rate = 1/h
+duration = A_time[:-1] - A_time[0]
+N = sample_rate * duration
+
+A_time
+A_sine
+
+fourier_A_sine = np.fft.fft(A_sine)
+
+fourier_N = len(fourier_A_sine)
+fourier_n = np.arange(fourier_N)
+T = fourier_N / sample_rate
+
+freq = fourier_n/T
+
+plt.stem(freq, fourier_A_time, 'b', markerfmt=" ", basefmt="-b")
+
+plt.xlim(-1000, 10000)
 
 
 

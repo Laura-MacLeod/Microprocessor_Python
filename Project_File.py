@@ -53,7 +53,7 @@ def Duty_Period(n_samples, sine_freq, clock_freq, prescaler):
     
     for i in range(len(t)):
         
-        width = (sine_period * (-np.cos((2 * np.pi * t[i])/sine_period) + 1)) / (2 * n_samples)
+        width = (sine_period * (np.sin((2 * np.pi * t[i])/sine_period) + 1)) / (2 * n_samples)
         width_vals.append(width)
         
         CCPCON = width / (clock_period * prescaler)
@@ -71,7 +71,7 @@ def Duty_Period(n_samples, sine_freq, clock_freq, prescaler):
 
 
 
-PR2_b, CCPCON_b, PR2_d, CCPCON_d, t = Duty_Period(10, 823.25, 8e6, 1) # (Num, freq, clock, prescale)
+PR2_b, CCPCON_b, PR2_d, CCPCON_d, t = Duty_Period(16, 592, 8e6, 1) # (Num, freq, clock, prescale)
                                                 
 
 
